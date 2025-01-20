@@ -17,18 +17,32 @@ public class Main {
 
         customer.addToBalance(10);
 
-        System.out.println(buyTicket(6, customer, movies.get(0)).getCustomerId());
+        System.out.println(buyTicket(2, customer, movies.get(0)).getCustomerId());
 
     }
 
     public static Ticket buyTicket(int seatId, Customer customer, Movie movie) {
-        if (seatId <= 0 || customer == null || (movie.getId() <= 0 && movie.getId() > 3)) {
+        if ((seatId <= 0 || seatId > 3) || customer == null || (movie.getId() <= 0 || movie.getId() > 3)) {
             throw new RuntimeException("wrong inputs");
         }
 
         if (customer.getBalance() < movie.getTicketPrice()) {
             throw new RuntimeException("insufficient funds");
         }
+
+        for (Seat seat : movie.getSeats()) {
+            if (seat.isBooked()) {
+                throw new RuntimeException("seat is already booked");
+            }
+
+            if (seat.getId() == seatId) {
+                customer.addToBalance(-movie.getTicketPrice());
+                seat.setBooked(true);
+                break;
+            }
+        }
+
+        System.out.println(customer.getBalance());
 
         return new Ticket(1, seatId, customer.getId(), movie.getId());
     }
